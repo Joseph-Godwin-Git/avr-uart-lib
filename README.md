@@ -2,8 +2,7 @@
 A lightweight and portable C UART driver for AVR microcontrollers. This library supports:
 - ATmega324PA
 - ATmega324PB
-- ATmega16
-
+- ATmega16 \
 Designed for low-level embedded systems programming, this library allows precise control over UART preipherals without relying on bloated frameworks or libraries.
 ---
 
@@ -23,19 +22,19 @@ Designed for low-level embedded systems programming, this library allows precise
 - ATmega16
 
 ### Directory Structure
-avr-uart-lib/
-├── include/
-│ └── uart.h
-├── src/
-│ ├── uart.c
-│ └── uart_m324pa.c
-│ └── uart_m324pb.c
-│ └── uart_m16.c
-│ └── . . .
-├── examples/
-│ └── uart_echo.c
-│ └── . . .
-└── Makefile
+avr-uart-lib/           \
+├── include/            \
+│ └── uart.h            \
+├── src/                \
+│ ├── uart.c            \
+│ └── uart_m324pa.c     \
+│ └── uart_m324pb.c     \
+│ └── uart_m16.c        \
+│ └── . . .             \
+├── examples/           \
+│ └── uart_echo.c       \
+│ └── . . .             \
+└── Makefile            \
 
 ### Basic Usage
 ```c
