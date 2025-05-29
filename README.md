@@ -3,7 +3,8 @@ A lightweight and portable C UART driver for AVR microcontrollers. This library 
 - ATmega324PA
 - ATmega324PB
 - ATmega16
-Designed for low-level embedded systems programming, this library allows precise control over UART preipherals without relying on bloated frameworks or libraries.
+
+<p>Designed for low-level embedded systems programming, this library allows precise control over UART preipherals without relying on bloated frameworks or libraries.</p>
 ---
 
 ## Features
