@@ -34,7 +34,7 @@ avr-uart-lib/           \
 ├── examples/           \
 │ └── uart_echo.c       \
 │ └── . . .             \
-└── Makefile            \
+└── Makefile            
 
 ### Basic Usage
 ```c
