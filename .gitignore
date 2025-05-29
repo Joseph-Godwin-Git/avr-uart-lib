@@ -5,3 +5,12 @@
 !.gitignore
 !LICENSE
 !README.md
+!include/
+!src/
+!examples/
+
+# Source files
+!src/*.c
+
+# Header files
+!include/*.h
