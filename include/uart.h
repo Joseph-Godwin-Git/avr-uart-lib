@@ -26,32 +26,47 @@
 #include <avr/io.h>
 #include "ringbuf.h"
 
+#if defined(__AVR_ATmega16__)
+#define REG(x) _SFR_IO8(x)
+#elif defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega324PB__)
+#define REG(x) _SFR_MEM8(x)
+#endif
+
 #define DEFAULT_BUFFER_SIZE 128  // Default RX buffer size for UART ring buffer
 
 /**
  * @brief Templated UART interface class.
  *
- * Allows compile-time configuration of register addresses and bit positions
- * to support multiple AVR microcontrollers with a single implementation.
- * Inherits from RingBuffer<size> to handle RX buffering.
+ * Provides a generic, compile-time configurable UART driver for AVR microcontrollers
+ * by abstracting register locations and bit positions. Enables reuse across multiple
+ * devices (e.g., ATmega16, ATmega324PA/PB) with different UART register mappings.
  *
- * @tparam ubrrh   Address of UBRRH or UBRRnH
- * @tparam ubrrl   Address of UBRRL or UBRRnL
- * @tparam ucsra   Address of UCSRA or UCSRnA
- * @tparam ucsrb   Address of UCSRB or UCSRnB
- * @tparam udr     Address of UDR or UDRn
- * @tparam rxen    Bit position for RX enable
- * @tparam txen    Bit position for TX enable
- * @tparam rxcie   Bit position for RX complete interrupt enable
- * @tparam udre    Bit position for data register empty
- * @tparam u2x     Bit position for double speed mode
- * @tparam size    Size of the RX ring buffer
+ * Inherits from RingBuffer<size> to manage incoming data via a circular buffer.
+ *
+ * All register parameters are I/O register offsets (as used with _SFR_IO8), not full
+ * SRAM addresses.
+ *
+ * @tparam ubrrh   I/O offset of UBRRH or UBRRnH
+ * @tparam ubrrl   I/O offset of UBRRL or UBRRnL
+ * @tparam ucsra   I/O offset of UCSRA or UCSRnA
+ * @tparam ucsrb   I/O offset of UCSRB or UCSRnB
+ * @tparam ucsrc   I/O offset of UCSRC or UCSRnC
+ * @tparam udr     I/O offset of UDR or UDRn
+ * @tparam rxen    Bit position of RX enable in UCSRB
+ * @tparam txen    Bit position of TX enable in UCSRB
+ * @tparam rxcie   Bit position of RX Complete Interrupt Enable in UCSRB
+ * @tparam udre    Bit position of UDRE (data register empty) in UCSRA
+ * @tparam u2x     Bit position of double speed mode (U2X) in UCSRA
+ * @tparam size    Size of the RX ring buffer (must be a power of two)
  */
-template <uint8_t ubrrh, uint8_t ubrrl, uint8_t ucsra, uint8_t ucsrb,
+
+template <uint8_t ubrrh, uint8_t ubrrl, uint8_t ucsra, uint8_t ucsrb, uint8_t ucsrc,
           uint8_t udr, uint8_t rxen, uint8_t txen, uint8_t rxcie,
           uint8_t udre, uint8_t u2x, uint8_t size>
 class UartInterface : public RingBuffer<size> {
 public:
+
+    static const uint8_t ucsrc_8bitmode_mask = (1<<2) | (1<<1); //UCSZ[1:0]
     /**
      * @brief Initializes the UART peripheral at the specified baud rate.
      *
@@ -62,26 +77,37 @@ public:
      */
     void init(uint32_t baud) {
         uint16_t ubrr_value;
-        
+        REG(ucsra) = 0x00;
+        REG(ucsrb) = 0x00;
+        REG(ucsrc) = 0x00;
+
+        #if defined(__AVR_ATmega16__)
+        REG(ucsrc) = (1 << 7) | ucsrc_8bitmode_mask;
+        #else
+        REG(ucsrc) = ucsrc_8bitmode_mask;
+        #endif
+
+
         // Try U2X mode (double speed)
-        _SFR_IO8(ucsra) = 1 << u2x;
+        REG(ucsra) = (1<<u2x);
+
         ubrr_value = (F_CPU / 4 / baud - 1) / 2;
 
         // Fallback to normal speed mode if UBRR is too large
         if (ubrr_value > 4095) {
-            _SFR_IO8(ucsra) = 0;
+            REG(ucsra) = 0;
             ubrr_value = (F_CPU / 8 / baud - 1) / 2;
         }
 
         // Set baud rate registers
-        _SFR_IO8(ubrrh) = ubrr_value >> 8;
-        _SFR_IO8(ubrrl) = ubrr_value;
+        REG(ubrrh) = ubrr_value >> 8;
+        REG(ubrrl) = ubrr_value;
 
         // Enable RX, TX, and RX Complete Interrupt
-        _SFR_IO8(ucsrb) = (1 << rxen) | (1 << txen) | (1 << rxcie);
+        REG(ucsrb) = (1 << rxen) | (1 << txen) | (1 << rxcie);
 
         // Disable UDRE interrupt by default
-        _SFR_IO8(ucsrb) &= ~(1 << udre);
+        REG(ucsrb) &= ~(1 << udre);
     }
 
     /**
@@ -92,8 +118,8 @@ public:
      * @param byte Byte to transmit.
      */
     void write(uint8_t byte) {
-        while (!(_SFR_IO8(ucsra) & (1 << udre))) {;}
-        _SFR_IO8(udr) = byte;
+        while (!(REG(ucsra) & (1 << udre))) {;}
+        REG(udr) = byte;
     }
 
     /**
@@ -127,6 +153,7 @@ public:
     void write(const char* c, size_t len) {
         write(reinterpret_cast<const uint8_t*>(c), len);
     }
+private:
 };
 
 // -------- Device-Specific Typedefs -------- //
@@ -136,7 +163,7 @@ public:
  * @brief UART0 instance for ATmega16.
  */
 typedef UartInterface<
-    _SFR_IO_ADDR(UBRRH), _SFR_IO_ADDR(UBRRL), _SFR_IO_ADDR(UCSRA), _SFR_IO_ADDR(UCSRB), _SFR_IO_ADDR(UDR),
+    0x20, 0x09, 0x0B, 0x0A, 0x20, 0x0C, // UBRRH, UBRRL, UCSRA, UCSRB, UCSRC, UDR
     RXEN, TXEN, RXCIE, UDRE, U2X, DEFAULT_BUFFER_SIZE
 > _UART0;
 
@@ -145,12 +172,12 @@ typedef UartInterface<
  * @brief UART0 and UART1 instances for ATmega324PA.
  */
 typedef UartInterface<
-    _SFR_IO_ADDR(UBRR0H), _SFR_IO_ADDR(UBRR0L), _SFR_IO_ADDR(UCSR0A), _SFR_IO_ADDR(UCSR0B), _SFR_IO_ADDR(UDR0),
+    0xC5, 0xC4, 0xC0, 0xC1, 0xC2, 0xC6, // UBRR0H, UBRR0L, UCSR0A, UCSR0B, UCSR0C, UDR0
     RXEN0, TXEN0, RXCIE0, UDRE0, U2X0, DEFAULT_BUFFER_SIZE
 > _UART0;
 
 typedef UartInterface<
-    _SFR_IO_ADDR(UBRR1H), _SFR_IO_ADDR(UBRR1L), _SFR_IO_ADDR(UCSR1A), _SFR_IO_ADDR(UCSR1B), _SFR_IO_ADDR(UDR1),
+    0xCD, 0xCC, 0xC8, 0xC9, 0xCA, 0xCE, // UBRR1H, UBRR1L, UCSR1A, UCSR1B, UCSR1C, UDR1
     RXEN1, TXEN1, RXCIE1, UDRE1, U2X1, DEFAULT_BUFFER_SIZE
 > _UART1;
 
@@ -159,12 +186,12 @@ typedef UartInterface<
  * @brief UART0 and UART1 instances for ATmega324PB.
  */
 typedef UartInterface<
-    _SFR_IO_ADDR(UBRR0H), _SFR_IO_ADDR(UBRR0L), _SFR_IO_ADDR(UCSR0A), _SFR_IO_ADDR(UCSR0B), _SFR_IO_ADDR(UDR0),
+    0xC5, 0xC4, 0xC0, 0xC1, 0xC2, 0xC6, // UBRR0H, UBRR0L, UCSR0A, UCSR0B, UCSR0C, UDR0
     RXEN, TXEN, RXCIE, UDRE, U2X, DEFAULT_BUFFER_SIZE
 > _UART0;
 
 typedef UartInterface<
-    _SFR_IO_ADDR(UBRR1H), _SFR_IO_ADDR(UBRR1L), _SFR_IO_ADDR(UCSR1A), _SFR_IO_ADDR(UCSR1B), _SFR_IO_ADDR(UDR1),
+    0xCD, 0xCC, 0xC8, 0xC9, 0xCA, 0xCE, // UBRR1H, UBRR1L, UCSR1A, UCSR1B, UCSR1C, UDR1
     RXEN, TXEN, RXCIE, UDRE, U2X, DEFAULT_BUFFER_SIZE
 > _UART1;
 
