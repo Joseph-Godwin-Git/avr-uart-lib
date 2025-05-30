@@ -25,38 +25,35 @@ A lightweight and portable C UART driver for AVR microcontrollers. This library 
 avr-uart-lib/           \
 ├── include/            \
 │ └── uart.h            \
-├── src/                \
-│ ├── uart.c            \
-│ └── uart_m324pa.c     \
-│ └── uart_m324pb.c     \
-│ └── uart_m16.c        \
-│ └── . . .             \
+│ └── ringbuf.h         \
 ├── examples/           \
-│ └── uart_echo.c       \
+│ └── hello_world.cpp   \
 │ └── . . .             \
 └── Makefile            
 
 ### Basic Usage
 ```c
+#include <util/delay.h>
 #include "uart.h"
 
-int main(void) {
-    uart0_init(9600);         // Initialize UART0 at 9600 baud
-    uart0_puts("Hello UART"); // Send string
-    while (1) {
-        if (uart0_available()) {
-            char c = uart0_get();
-            uart0_put(c); // Echo
-        }
+int main(void){
+    _UART0 uart0;
+    uart0.init(9600);
+    
+    while(1){
+        uint8_t string0[] = "[UART0] Hello World!\r\n";
+        uart0.write(string0, sizeof(string0));
+        _delay_ms(500);
     }
 }
 ```
 
 ### Build and Flash
 - Make sure `avr-gcc` and `avrdude` are installed.
-- Use the provided Makefule or integrate the `src/` folder into your existing AVR project.
+- Use the provided Makefile or integrate the `include/` folder into your existing AVR project.
 
 ## TODO
-- [ ] Add support for ATmega324PA
-- [ ] Add support for ATmega324PB
-- [ ] Add support for ATmega16
+- [x] Add support for ATmega324PA
+- [x] Add support for ATmega324PB
+- [x] Add support for ATmega16
+- [ ] Replace hard-coded register addresses in template instantiations with centralized register mapping configurations
