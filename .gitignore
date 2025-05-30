@@ -13,3 +13,6 @@
 
 # Header files
 !include/*.h
+
+# Example files
+!examples/*.cpp
