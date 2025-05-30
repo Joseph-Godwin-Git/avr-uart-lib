@@ -57,3 +57,5 @@ int main(void){
 - [x] Add support for ATmega324PB
 - [x] Add support for ATmega16
 - [ ] Replace hard-coded register addresses in template instantiations with centralized register mapping configurations
+- [ ] Add RX Polling support
+- [ ] Add RX Interrupt support
