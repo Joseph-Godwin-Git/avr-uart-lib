@@ -21,9 +21,6 @@
  * Ensure the selected device and clock frequency match your hardware setup.
  */
 
-
-#include <avr/io.h>
-#include <avr/interrupt.h>
 #include <util/delay.h>
 #include "uart.h"
 
