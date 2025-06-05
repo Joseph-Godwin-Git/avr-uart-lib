@@ -53,9 +53,22 @@ int main(void){
 - Use the provided Makefile or integrate the `include/` folder into your existing AVR project.
 
 # Examples
+## Hello World
+To compile this example using the provided makefile, run the following command. \
+```make hello_world DEVICE=dev F_CPU=freq``` 
+
+Where ```dev``` is the  target device:
+- ```m16``` → ATmega16
+- ```m324pa``` → ATmega324PA
+- ```m324pb``` → ATmega324PB 
+
+And ```freq``` is the device's clock frequency.
+
+![me](https://github.com/Joseph-Godwin-Git/avr-uart-lib/blob/main/examples/resources/hello-world-example-gif.gif)
+
 ## Echo
 To compile this example using the provided makefile, run the following command. \
-```make echo DEVICE=dev F_CPU=freq``` \
+```make echo DEVICE=dev F_CPU=freq``` 
 
 Where ```dev``` is the  target device:
 - ```m16``` → ATmega16
@@ -72,5 +85,4 @@ And ```freq``` is the device's clock frequency.
 - [x] Add support for ATmega324PB
 - [x] Add support for ATmega16
 - [ ] Replace hard-coded register addresses in template instantiations with centralized register mapping configurations
-- [ ] Add RX Polling support
-- [ ] Add RX Interrupt support
+- [x] Add RX Interrupt support
