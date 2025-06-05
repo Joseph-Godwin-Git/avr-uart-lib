@@ -32,21 +32,7 @@ avr-uart-lib/           \
 └── Makefile            
 
 ### Basic Usage
-```c
-#include <util/delay.h>
-#include "uart.h"
-
-int main(void){
-    _UART0 uart0;
-    uart0.init(9600);
-    
-    while(1){
-        uint8_t string0[] = "[UART0] Hello World!\r\n";
-        uart0.write(string0, sizeof(string0));
-        _delay_ms(500);
-    }
-}
-```
+![me](https://github.com/Joseph-Godwin-Git/avr-uart-lib/blob/main/examples/resources/hello-world-screenshot.png)
 
 ### Build and Flash
 - Make sure `avr-gcc` and `avrdude` are installed.

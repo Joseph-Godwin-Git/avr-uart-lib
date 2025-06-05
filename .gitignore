@@ -19,5 +19,5 @@
 # Example files
 !examples/*.cpp
 
-# Gif Examples
-!examples/resources/*.gif
+# Examples
+!examples/resources/*
