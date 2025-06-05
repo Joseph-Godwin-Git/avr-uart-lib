@@ -105,4 +105,4 @@ private:
     volatile uint8_t _readIndex = 0;
 };
 
-#endif // UART_H
+#endif // RINGBUF_H
