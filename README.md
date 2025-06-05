@@ -52,7 +52,22 @@ int main(void){
 - Make sure `avr-gcc` and `avrdude` are installed.
 - Use the provided Makefile or integrate the `include/` folder into your existing AVR project.
 
-## TODO
+# Examples
+## Echo
+To compile this example using the provided makefile, run the following command. \
+```make echo DEVICE=dev F_CPU=freq``` \
+
+Where ```dev``` is the  target device:
+- ```m16``` → ATmega16
+- ```m324pa``` → ATmega324PA
+- ```m324pb``` → ATmega324PB 
+
+And ```freq``` is the device's clock frequency.
+
+![me](https://github.com/Joseph-Godwin-Git/avr-uart-lib/blob/main/examples/resources/echo-example-gif.gif)
+
+
+# TODO
 - [x] Add support for ATmega324PA
 - [x] Add support for ATmega324PB
 - [x] Add support for ATmega16
