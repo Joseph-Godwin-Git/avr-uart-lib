@@ -25,22 +25,20 @@
 #include "uart.h"
 
 int main(void){
-    _UART0 uart0;
-    uart0.init(9600);
 
+    Uart0.init(9600);
     #if defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega324PB__)
-    _UART1 uart1;
-    uart1.init(9600);
+    Uart1.init(9600);
     #endif // __AVR_ATmega324PA__ || __AVR_ATmega324PB__
     
 
     while(1){
         uint8_t string0[] = "[UART0] Hello World!\r\n";
-        uart0.write(string0, sizeof(string0));
+        Uart0.write(string0, sizeof(string0));
 
         #if defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega324PB__)
         uint8_t string1[] = "[UART1] Hello World!\r\n";
-        uart1.write(string1, sizeof(string1));
+        Uart1.write(string1, sizeof(string1));
         #endif // __AVR_ATmega324PA__ || __AVR_ATmega324PB__
 
         _delay_ms(500);

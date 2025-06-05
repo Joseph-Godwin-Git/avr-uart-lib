@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include "ringbuf.h"
 
 #if defined(__AVR_ATmega16__)
@@ -167,6 +168,13 @@ typedef UartInterface<
     RXEN, TXEN, RXCIE, UDRE, U2X, DEFAULT_BUFFER_SIZE
 > _UART0;
 
+_UART0 Uart0;
+
+ISR(USART_RXC_vect){
+    uint8_t byte = UDR;
+    Uart0.push(byte);
+}
+
 #elif defined(__AVR_ATmega324PA__)
 /**
  * @brief UART0 and UART1 instances for ATmega324PA.
@@ -181,6 +189,19 @@ typedef UartInterface<
     RXEN1, TXEN1, RXCIE1, UDRE1, U2X1, DEFAULT_BUFFER_SIZE
 > _UART1;
 
+_UART0 Uart0;
+_UART1 Uart1;
+
+ISR(USART0_RX_vect){
+    uint8_t byte = UDR0;
+    Uart0.push(byte);
+}
+
+ISR(USART1_RX_vect){
+    uint8_t byte = UDR1;
+    Uart1.push(byte);
+}
+
 #elif defined(__AVR_ATmega324PB__)
 /**
  * @brief UART0 and UART1 instances for ATmega324PB.
@@ -194,6 +215,19 @@ typedef UartInterface<
     0xCD, 0xCC, 0xC8, 0xC9, 0xCA, 0xCE, // UBRR1H, UBRR1L, UCSR1A, UCSR1B, UCSR1C, UDR1
     RXEN, TXEN, RXCIE, UDRE, U2X, DEFAULT_BUFFER_SIZE
 > _UART1;
+
+_UART0 Uart0;
+_UART1 Uart1;
+
+ISR(USART0_RX_vect){
+    uint8_t byte = UDR0;
+    Uart0.push(byte);
+}
+
+ISR(USART1_RX_vect){
+    uint8_t byte = UDR1;
+    Uart1.push(byte);
+}
 
 #endif // Device-specific blocks
 
