@@ -8,9 +8,8 @@ A lightweight and portable C UART driver for AVR microcontrollers. This library 
 
 ## Features
 - Minimal dependencies
-- TX/RX support with optional interrupt-based receive
+- TX/RX support with interrupt-based receive
 - Baud rate calculation
-- Flexible initialization routines
 - Modular structure for multi-device support
 ---
 
@@ -19,23 +18,14 @@ A lightweight and portable C UART driver for AVR microcontrollers. This library 
 ### Supported MCUs
 - ATmega324PA
 - ATmega324PB
-- ATmega16
-
-### Directory Structure
-avr-uart-lib/           \
-├── include/            \
-│ └── uart.h            \
-│ └── ringbuf.h         \
-├── examples/           \
-│ └── hello_world.cpp   \
-│ └── . . .             \
-└── Makefile            
+- ATmega16       
 
 ### Basic Usage
 ![me](https://github.com/Joseph-Godwin-Git/avr-uart-lib/blob/main/examples/resources/hello-world-screenshot.png)
 
 ### Build and Flash
 - Make sure `avr-gcc` and `avrdude` are installed.
+ - If using ATmega324PB, make sure the ATmega324PB device pack is installed.
 - Use the provided Makefile or integrate the `include/` folder into your existing AVR project.
 
 # Examples
