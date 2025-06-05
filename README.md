@@ -1,5 +1,5 @@
 # AVR UART Library
-A lightweight and portable C UART driver for AVR microcontrollers. This library supports:
+A lightweight and portable C++ UART driver for AVR microcontrollers. This library supports:
 - ATmega324PA
 - ATmega324PB
 - ATmega16
