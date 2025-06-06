@@ -24,12 +24,13 @@
 #include <util/delay.h>
 #include "uart.h"
 
-int main(void){
-    Uart0.init(9600);
-    uint8_t string0[] = "[UART0] Hello World!\r\n";
-    while(1){
-        Uart0.write(string0, sizeof(string0));
-        _delay_ms(500);
+int main(void)
+{
+  Uart0.init(9600);
+  uint8_t string0[] = "[UART0] Hello World!\r\n";
+  while(1)
+    {
+      Uart0.write(string0, sizeof(string0));
+      _delay_ms(500);
     }
 }
-

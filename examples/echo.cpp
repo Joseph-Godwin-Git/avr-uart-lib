@@ -24,19 +24,22 @@
 #include <util/delay.h>
 #include "uart.h"
 
-int main(void){
-    Uart0.init(9600);
-    sei(); // Enable Global Interrupts
+int main(void)
+{
+  Uart0.init(9600);
+  sei();  // Enable Global Interrupts
 
-    uint8_t echo[] = "ECHO: ";
-    while(1){
-        uint8_t byte;
-        if(Uart0.pop(&byte)){
-            Uart0.write(echo, sizeof(echo));
-            do
+  uint8_t echo[] = "ECHO: ";
+  while(1)
+    {
+      uint8_t byte;
+      if(Uart0.pop(&byte))
+        {
+          Uart0.write(echo, sizeof(echo));
+          do
             {
-                Uart0.write(byte);
-            } while (Uart0.pop(&byte));  
+              Uart0.write(byte);
+          } while(Uart0.pop(&byte));
         }
     }
 }

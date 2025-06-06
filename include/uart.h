@@ -92,7 +92,7 @@ class UartInterface : public RingBuffer<size>
     REG(ucsrc) = (1 << URSEL) | ucsrc_8bitmode_mask;
 #else
     REG(ucsrc) = ucsrc_8bitmode_mask;
-#endif // URSEL
+#endif  // URSEL
 
     // Try U2X mode (double speed)
     REG(ucsra) = (1 << u2x);
