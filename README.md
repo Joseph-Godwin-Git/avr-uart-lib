@@ -60,5 +60,5 @@ And ```freq``` is the device's clock frequency.
 - [x] Add support for ATmega324PA
 - [x] Add support for ATmega324PB
 - [x] Add support for ATmega16
-- [ ] Replace hard-coded register addresses in template instantiations with centralized register mapping configurations
+- [x] Replace hard-coded register addresses in template instantiations with centralized register mapping configurations
 - [x] Add RX Interrupt support

@@ -26,12 +26,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "ringbuf.h"
-
-#if defined(__AVR_ATmega16__)
-#define REG(x) _SFR_IO8(x)
-#elif defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega324PB__)
-#define REG(x) _SFR_MEM8(x)
-#endif
+#include "uart_definitions.h"
 
 #define DEFAULT_BUFFER_SIZE 128  // Default RX buffer size for UART ring buffer
 
@@ -93,12 +88,11 @@ class UartInterface : public RingBuffer<size>
     REG(ucsra) = 0x00;
     REG(ucsrb) = 0x00;
     REG(ucsrc) = 0x00;
-
-#if defined(__AVR_ATmega16__)
-    REG(ucsrc) = (1 << 7) | ucsrc_8bitmode_mask;
+#if defined(URSEL)
+    REG(ucsrc) = (1 << URSEL) | ucsrc_8bitmode_mask;
 #else
     REG(ucsrc) = ucsrc_8bitmode_mask;
-#endif
+#endif // URSEL
 
     // Try U2X mode (double speed)
     REG(ucsra) = (1 << u2x);
@@ -176,128 +170,50 @@ class UartInterface : public RingBuffer<size>
  private:
 };
 
-// -------- Device-Specific Typedefs -------- //
-
-#if defined(__AVR_ATmega16__)
-/**
- * @brief UART0 instance for ATmega16.
- */
-typedef UartInterface<0x20,
-                      0x09,
-                      0x0B,
-                      0x0A,
-                      0x20,
-                      0x0C,  // UBRRH, UBRRL, UCSRA, UCSRB, UCSRC, UDR
-                      RXEN,
-                      TXEN,
-                      RXCIE,
-                      UDRE,
-                      U2X,
+typedef UartInterface<_UBRR0H,
+                      _UBRR0L,
+                      _UCSRA0,
+                      _UCSRB0,
+                      _UCSRC0,
+                      _UDR0,
+                      _RXEN0,
+                      _TXEN0,
+                      _RXCIE0,
+                      _UDRE0,
+                      _U2X0,
                       DEFAULT_BUFFER_SIZE>
   _UART0;
 
 _UART0 Uart0;
 
-ISR(USART_RXC_vect)
+ISR(_USART0_RXC_vect)
 {
-  uint8_t byte = UDR;
+  uint8_t byte = _UDR0;
   Uart0.push(byte);
 }
 
-#elif defined(__AVR_ATmega324PA__)
-/**
- * @brief UART0 and UART1 instances for ATmega324PA.
- */
-typedef UartInterface<0xC5,
-                      0xC4,
-                      0xC0,
-                      0xC1,
-                      0xC2,
-                      0xC6,  // UBRR0H, UBRR0L, UCSR0A, UCSR0B, UCSR0C, UDR0
-                      RXEN0,
-                      TXEN0,
-                      RXCIE0,
-                      UDRE0,
-                      U2X0,
-                      DEFAULT_BUFFER_SIZE>
-  _UART0;
-
-typedef UartInterface<0xCD,
-                      0xCC,
-                      0xC8,
-                      0xC9,
-                      0xCA,
-                      0xCE,  // UBRR1H, UBRR1L, UCSR1A, UCSR1B, UCSR1C, UDR1
-                      RXEN1,
-                      TXEN1,
-                      RXCIE1,
-                      UDRE1,
-                      U2X1,
+#if NUM_UARTS > 1
+typedef UartInterface<_UBRR1H,
+                      _UBRR1L,
+                      _UCSRA1,
+                      _UCSRB1,
+                      _UCSRC1,
+                      _UDR1,
+                      _RXEN1,
+                      _TXEN1,
+                      _RXCIE1,
+                      _UDRE1,
+                      _U2X1,
                       DEFAULT_BUFFER_SIZE>
   _UART1;
 
-_UART0 Uart0;
 _UART1 Uart1;
 
-ISR(USART0_RX_vect)
+ISR(_USART1_RXC_vect)
 {
-  uint8_t byte = UDR0;
-  Uart0.push(byte);
-}
-
-ISR(USART1_RX_vect)
-{
-  uint8_t byte = UDR1;
+  uint8_t byte = _UDR1;
   Uart1.push(byte);
 }
-
-#elif defined(__AVR_ATmega324PB__)
-/**
- * @brief UART0 and UART1 instances for ATmega324PB.
- */
-typedef UartInterface<0xC5,
-                      0xC4,
-                      0xC0,
-                      0xC1,
-                      0xC2,
-                      0xC6,  // UBRR0H, UBRR0L, UCSR0A, UCSR0B, UCSR0C, UDR0
-                      RXEN,
-                      TXEN,
-                      RXCIE,
-                      UDRE,
-                      U2X,
-                      DEFAULT_BUFFER_SIZE>
-  _UART0;
-
-typedef UartInterface<0xCD,
-                      0xCC,
-                      0xC8,
-                      0xC9,
-                      0xCA,
-                      0xCE,  // UBRR1H, UBRR1L, UCSR1A, UCSR1B, UCSR1C, UDR1
-                      RXEN,
-                      TXEN,
-                      RXCIE,
-                      UDRE,
-                      U2X,
-                      DEFAULT_BUFFER_SIZE>
-  _UART1;
-
-_UART0 Uart0;
-_UART1 Uart1;
-
-ISR(USART0_RX_vect)
-{
-  uint8_t byte = UDR0;
-  Uart0.push(byte);
-}
-
-ISR(USART1_RX_vect)
-{
-  uint8_t byte = UDR1;
-  Uart1.push(byte);
-}
-
-#endif  // Device-specific blocks
+#endif  // NUM_UARTS > 1
 
 #endif  // UART_H
